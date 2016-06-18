@@ -51,14 +51,16 @@ class Reversible(object):
         # both fail, re-raise the NoReverseMatch unless we're using the 
         # {% reverse ... as var %} construct in which cause return 
         # nothing.
+        urlconf = None
+        if 'request' in context and hasattr(context['request'], 'urlconf'):
+            urlconf = context['request'].urlconf
         try:
-            url = reverse(view, args=args, 
-                          kwargs=kwargs)
+            url = reverse(view, args=args, kwargs=kwargs, urlconf=urlconf)
         except NoReverseMatch, exc:
             project_name = settings.SETTINGS_MODULE.split('.')[0]
             try:
                 url = reverse(project_name + '.' + view,
-                              args=args, kwargs=kwargs)
+                              args=args, kwargs=kwargs, urlconf=urlconf)
             except NoReverseMatch:
                 # reraise the original NoReverseMatch since the above 
                 # is just a (failed, if we reach here) attempt to fix 
